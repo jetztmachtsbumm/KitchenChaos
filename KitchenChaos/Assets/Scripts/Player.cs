@@ -7,6 +7,13 @@ public class Player : MonoBehaviour
 
     [SerializeField] private float moveSpeed;
 
+    private Animator animator;
+
+    private void Awake()
+    {
+        animator = GetComponentInChildren<Animator>();
+    }
+
     private void Update()
     {
         Vector2 inputVector = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
@@ -17,6 +24,8 @@ public class Player : MonoBehaviour
 
         float rotationSpeed = 10f;
         transform.forward = Vector3.Slerp(transform.forward, moveDir, rotationSpeed * Time.deltaTime);
+
+        animator.SetBool("IsWalking", moveDir != Vector3.zero);
     }
 
 }
