@@ -6,14 +6,17 @@ public class Player : MonoBehaviour
 {
 
     [SerializeField] private float moveSpeed;
+    [SerializeField] private LayerMask countersLayerMask;
 
     private PlayerInputActions playerInputActions;
     private Animator animator;
+    private Vector3 lastInteractDirection;
 
     private void Awake()
     {
         playerInputActions = new PlayerInputActions();
         playerInputActions.Player.Enable();
+        playerInputActions.Player.Interact.performed += Interact_performed;
 
         animator = GetComponentInChildren<Animator>();
     }
@@ -25,9 +28,7 @@ public class Player : MonoBehaviour
 
     private void HandleMovement()
     {
-        Vector2 inputVector = playerInputActions.Player.Move.ReadValue<Vector2>();
-
-        Vector3 moveDir = new Vector3(inputVector.x, 0, inputVector.y).normalized;
+        Vector3 moveDir = GetMoveDir();
 
         float moveDistance = moveSpeed * Time.deltaTime;
         float playerRadius = 0.7f;
@@ -64,6 +65,36 @@ public class Player : MonoBehaviour
         transform.forward = Vector3.Slerp(transform.forward, moveDir, rotationSpeed * Time.deltaTime);
 
         animator.SetBool("IsWalking", moveDir != Vector3.zero);
+    }
+
+    private void HandleInteraction()
+    {
+        Vector3 moveDir = GetMoveDir();
+
+        if(moveDir != Vector3.zero)
+        {
+            lastInteractDirection = moveDir;
+        }
+
+        float interatioDistance = 2f;
+        if (Physics.Raycast(transform.position, lastInteractDirection, out RaycastHit hit, interatioDistance, countersLayerMask))
+        {
+            if(hit.transform.TryGetComponent(out ClearCounter clearCounter))
+            {
+                clearCounter.Interact();
+            }
+        }
+    }
+
+    private void Interact_performed(UnityEngine.InputSystem.InputAction.CallbackContext obj)
+    {
+        HandleInteraction();
+    }
+
+    private Vector3 GetMoveDir()
+    {
+        Vector2 inputVector = playerInputActions.Player.Move.ReadValue<Vector2>();
+        return new Vector3(inputVector.x, 0, inputVector.y).normalized;
     }
 
 }
