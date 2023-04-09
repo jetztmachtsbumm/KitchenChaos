@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -5,15 +6,36 @@ using UnityEngine;
 public class Player : MonoBehaviour
 {
 
+    public static Player Instance { get; private set; }
+
+    public event EventHandler<OnSelectedCounterChangedEventArgs> OnSelectedCounterChanged;
+    public class OnSelectedCounterChangedEventArgs : EventArgs
+    {
+        public ClearCounter SelectedConter { get; private set; }
+
+        public OnSelectedCounterChangedEventArgs(ClearCounter selectedConter)
+        {
+            SelectedConter = selectedConter;
+        }
+    }
+
     [SerializeField] private float moveSpeed;
     [SerializeField] private LayerMask countersLayerMask;
 
     private PlayerInputActions playerInputActions;
     private Animator animator;
     private Vector3 lastInteractDirection;
+    private ClearCounter selectedCounter;
 
     private void Awake()
     {
+        if(Instance != null)
+        {
+            Debug.LogWarning("There are more than one 'Player' objects active in the scene");
+            Destroy(gameObject);
+        }
+        Instance = this;
+
         playerInputActions = new PlayerInputActions();
         playerInputActions.Player.Enable();
         playerInputActions.Player.Interact.performed += Interact_performed;
@@ -24,6 +46,7 @@ public class Player : MonoBehaviour
     private void Update()
     {
         HandleMovement();
+        HandleInteraction();
     }
 
     private void HandleMovement()
@@ -81,20 +104,37 @@ public class Player : MonoBehaviour
         {
             if(hit.transform.TryGetComponent(out ClearCounter clearCounter))
             {
-                clearCounter.Interact();
+                if(clearCounter != selectedCounter)
+                {
+                    SetSelectedCounter(clearCounter);
+                }
             }
+            else
+            {
+                SetSelectedCounter(null);
+            }
+        }
+        else
+        {
+            SetSelectedCounter(null);
         }
     }
 
     private void Interact_performed(UnityEngine.InputSystem.InputAction.CallbackContext obj)
     {
-        HandleInteraction();
+        selectedCounter?.Interact();
     }
 
     private Vector3 GetMoveDir()
     {
         Vector2 inputVector = playerInputActions.Player.Move.ReadValue<Vector2>();
         return new Vector3(inputVector.x, 0, inputVector.y).normalized;
+    }
+
+    private void SetSelectedCounter(ClearCounter selectedCounter)
+    {
+        this.selectedCounter = selectedCounter;
+        OnSelectedCounterChanged?.Invoke(this, new OnSelectedCounterChangedEventArgs(selectedCounter));
     }
 
 }
