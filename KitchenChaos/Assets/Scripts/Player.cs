@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Player : MonoBehaviour
+public class Player : MonoBehaviour, IKitchenObjectParent
 {
 
     public static Player Instance { get; private set; }
@@ -26,6 +26,8 @@ public class Player : MonoBehaviour
     private Animator animator;
     private Vector3 lastInteractDirection;
     private ClearCounter selectedCounter;
+    private KitchenObject kitchenObject;
+    private Transform kitchenObjectHoldPoint;
 
     private void Awake()
     {
@@ -41,6 +43,7 @@ public class Player : MonoBehaviour
         playerInputActions.Player.Interact.performed += Interact_performed;
 
         animator = GetComponentInChildren<Animator>();
+        kitchenObjectHoldPoint = transform.Find("KitchenObjectHoldPoint");
     }
 
     private void Update()
@@ -122,7 +125,7 @@ public class Player : MonoBehaviour
 
     private void Interact_performed(UnityEngine.InputSystem.InputAction.CallbackContext obj)
     {
-        selectedCounter?.Interact();
+        selectedCounter?.Interact(this);
     }
 
     private Vector3 GetMoveDir()
@@ -137,4 +140,28 @@ public class Player : MonoBehaviour
         OnSelectedCounterChanged?.Invoke(this, new OnSelectedCounterChangedEventArgs(selectedCounter));
     }
 
+    public Transform GetKitchenObjectFollowPoint()
+    {
+        return kitchenObjectHoldPoint;
+    }
+
+    public void SetKitchenObject(KitchenObject kitchenObject)
+    {
+        this.kitchenObject = kitchenObject;
+    }
+
+    public KitchenObject GetKitchenObject()
+    {
+        return kitchenObject;
+    }
+
+    public void ClearKitchenObject()
+    {
+        kitchenObject = null;
+    }
+
+    public bool HasKitchenObject()
+    {
+        return kitchenObject != null;
+    }
 }
