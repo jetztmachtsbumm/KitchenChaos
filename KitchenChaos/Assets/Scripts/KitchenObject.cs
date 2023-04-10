@@ -19,11 +19,11 @@ public class KitchenObject : MonoBehaviour
         return kitchenObjectSO;
     }
 
-    public void SetKitchenObjectParent(IKitchenObjectParent kitchenObjectParent)
+    public void SetKitchenObjectParent(IKitchenObjectParent kitchenObjectParent, bool clearKitchenObjectOnParent)
     {
-        if(kitchenObjectParent != null)
+        if(this.kitchenObjectParent != null && clearKitchenObjectOnParent)
         {
-            kitchenObjectParent.ClearKitchenObject();
+            this.kitchenObjectParent.ClearKitchenObject();
         }
 
         this.kitchenObjectParent = kitchenObjectParent;

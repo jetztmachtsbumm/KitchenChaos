@@ -103,7 +103,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2fdcf60ad6bd7484baa363eb0537706a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  kitchenObjectSO: {fileID: 11400000, guid: 9e4b6c226c2336444983ebc881c92bc2, type: 2}
 --- !u!4 &735926718174402044 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 2340882718598855214, guid: c84ba8de9eaa91a49932b712a720db35,
@@ -267,6 +266,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: ClearCounter_Visual
+      objectReference: {fileID: 0}
+    - target: {fileID: 4589716710238282922, guid: 0004cb1e11ad014419b943c7da960724,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4589716710238282923, guid: 0004cb1e11ad014419b943c7da960724,
         type: 3}
