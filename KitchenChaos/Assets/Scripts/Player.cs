@@ -41,6 +41,7 @@ public class Player : MonoBehaviour, IKitchenObjectParent
         playerInputActions = new PlayerInputActions();
         playerInputActions.Player.Enable();
         playerInputActions.Player.Interact.performed += Interact_performed;
+        playerInputActions.Player.AltInteract.performed += AltInteract_performed;
 
         animator = GetComponentInChildren<Animator>();
         kitchenObjectHoldPoint = transform.Find("KitchenObjectHoldPoint");
@@ -64,7 +65,7 @@ public class Player : MonoBehaviour, IKitchenObjectParent
         if (!canMove)
         {
             Vector3 moveDirX = new Vector3(moveDir.x, 0, 0).normalized;
-            canMove = !Physics.CapsuleCast(transform.position, transform.position + Vector3.up * playerHeight, playerRadius, moveDirX, moveDistance);
+            canMove = moveDir.x != 0 && !Physics.CapsuleCast(transform.position, transform.position + Vector3.up * playerHeight, playerRadius, moveDirX, moveDistance);
 
             if (canMove)
             {
@@ -126,6 +127,11 @@ public class Player : MonoBehaviour, IKitchenObjectParent
     private void Interact_performed(UnityEngine.InputSystem.InputAction.CallbackContext obj)
     {
         selectedCounter?.Interact(this);
+    }
+
+    private void AltInteract_performed(UnityEngine.InputSystem.InputAction.CallbackContext obj)
+    {
+        selectedCounter?.AltInteract(this);
     }
 
     private Vector3 GetMoveDir()

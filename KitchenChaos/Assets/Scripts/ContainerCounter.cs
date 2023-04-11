@@ -9,8 +9,9 @@ public class ContainerCounter : BaseCounter
 
     private Animator animator;
 
-    private void Awake()
+    protected override void Awake()
     {
+        base.Awake();
         animator = transform.Find("ContainerCounter_Visual").GetComponent<Animator>();
     }
 
@@ -21,8 +22,7 @@ public class ContainerCounter : BaseCounter
             return;
         }
 
-        Transform kitchenObjectTransform = Instantiate(kitchenObjectSO.prefab);
-        kitchenObjectTransform.GetComponent<KitchenObject>().SetKitchenObjectParent(player, true);
+        KitchenObject.SpawnKitchenObject(kitchenObjectSO, player);
         animator.SetTrigger("OpenClose");
     }
 

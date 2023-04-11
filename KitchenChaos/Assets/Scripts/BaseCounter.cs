@@ -8,12 +8,17 @@ public class BaseCounter : MonoBehaviour, IKitchenObjectParent
     private Transform counterTopPoint;
     private KitchenObject kitchenObject;
 
-    private void Awake()
+    protected virtual void Awake()
     {
         counterTopPoint = transform.Find("CounterTopPoint");
     }
 
     public virtual void Interact(Player player)
+    {
+
+    }
+
+    public virtual void AltInteract(Player player)
     {
 
     }
