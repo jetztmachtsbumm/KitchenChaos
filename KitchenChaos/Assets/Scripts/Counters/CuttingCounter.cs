@@ -43,7 +43,14 @@ public class CuttingCounter : BaseCounter
             }
             else
             {
-                if (IsValidKitchenObject(player.GetKitchenObject().GetKitchenObjectSO()))
+                if (player.GetKitchenObject().TryGetPlate(out PlateKitchenObject plateKitchenObject))
+                {
+                    if (plateKitchenObject.TryAddIngredient(GetKitchenObject().GetKitchenObjectSO()))
+                    {
+                        GetKitchenObject().DestroySelf();
+                    }
+                } 
+                else if(IsValidKitchenObject(player.GetKitchenObject().GetKitchenObjectSO()))
                 {
                     KitchenObject kitchenObject = GetKitchenObject();
                     KitchenObject playerKitchenObject = player.GetKitchenObject();

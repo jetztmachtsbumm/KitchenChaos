@@ -102,6 +102,18 @@ public class StoveCounter : BaseCounter
                 DisableVisualEffects();
                 state = State.Idle;
             }
+            else
+            {
+                if (player.GetKitchenObject().TryGetPlate(out PlateKitchenObject plateKitchenObject))
+                {
+                    if (plateKitchenObject.TryAddIngredient(GetKitchenObject().GetKitchenObjectSO()))
+                    {
+                        GetKitchenObject().DestroySelf();
+                        DisableVisualEffects();
+                        state = State.Idle;
+                    }
+                }
+            }
         }
     }
 
