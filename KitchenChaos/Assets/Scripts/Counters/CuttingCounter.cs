@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -5,6 +6,8 @@ using UnityEngine.UI;
 
 public class CuttingCounter : BaseCounter
 {
+
+    public static event EventHandler OnCut;
 
     [SerializeField] private CuttingRecipeSO[] cuttingRecipes;
     [SerializeField] private Animator animator;
@@ -75,6 +78,8 @@ public class CuttingCounter : BaseCounter
         if (HasKitchenObject() && IsValidKitchenObject(GetKitchenObject().GetKitchenObjectSO()))
         {
             cuttingProgress++;
+
+            OnCut?.Invoke(this, EventArgs.Empty);
 
             CuttingRecipeSO cuttingRecipe = GetCuttingRecipeFromInput(GetKitchenObject().GetKitchenObjectSO());
 

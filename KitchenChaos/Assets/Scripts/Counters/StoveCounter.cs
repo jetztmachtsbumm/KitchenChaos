@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -6,7 +7,9 @@ using UnityEngine.UI;
 public class StoveCounter : BaseCounter
 {
 
-    private enum State
+    public event EventHandler OnStateChanged;
+
+    public enum State
     {
         Idle,
         Frying,
@@ -58,6 +61,7 @@ public class StoveCounter : BaseCounter
                         KitchenObject.SpawnKitchenObject(fryingRecipe.output, this);
                         burningRecipe = GetBurningRecipeFromInput(GetKitchenObject().GetKitchenObjectSO());
                         state = State.Fried;
+                        OnStateChanged?.Invoke(this, EventArgs.Empty);
                         burningTimer = 0;
                     }
                     break;
@@ -71,6 +75,7 @@ public class StoveCounter : BaseCounter
                         KitchenObject.SpawnKitchenObject(burningRecipe.output, this);
                         HideProgressBar();
                         state = State.Burnt;
+                        OnStateChanged?.Invoke(this, EventArgs.Empty);
                     }
                     break;
                 case State.Burnt:
@@ -90,6 +95,7 @@ public class StoveCounter : BaseCounter
                     player.GetKitchenObject().SetKitchenObjectParent(this, true);
                     fryingRecipe = GetFryingRecipeFromInput(GetKitchenObject().GetKitchenObjectSO());
                     state = State.Frying;
+                    OnStateChanged?.Invoke(this, EventArgs.Empty);
                     fryingTimer = 0;
                 }
             }
@@ -101,6 +107,7 @@ public class StoveCounter : BaseCounter
                 GetKitchenObject().SetKitchenObjectParent(player, true);
                 DisableVisualEffects();
                 state = State.Idle;
+                OnStateChanged?.Invoke(this, EventArgs.Empty);
             }
             else
             {
@@ -111,6 +118,7 @@ public class StoveCounter : BaseCounter
                         GetKitchenObject().DestroySelf();
                         DisableVisualEffects();
                         state = State.Idle;
+                        OnStateChanged?.Invoke(this, EventArgs.Empty);
                     }
                 }
             }
@@ -120,11 +128,6 @@ public class StoveCounter : BaseCounter
     private bool IsValidKitchenObject(KitchenObjectSO input)
     {
         return GetFryingRecipeFromInput(input) != null;
-    }
-
-    private KitchenObjectSO GetFryingRecipeOutput(KitchenObjectSO input)
-    {
-        return GetFryingRecipeFromInput(input).output;
     }
 
     private FryingRecipeSO GetFryingRecipeFromInput(KitchenObjectSO input)
@@ -175,6 +178,11 @@ public class StoveCounter : BaseCounter
     private void HideProgressBar()
     {
         fryingProgressBar.transform.parent.gameObject.SetActive(false);
+    }
+
+    public State GetState()
+    {
+        return state;
     }
 
 }

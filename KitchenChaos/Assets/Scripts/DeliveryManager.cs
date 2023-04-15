@@ -8,6 +8,7 @@ public class DeliveryManager : MonoBehaviour
 
     public event EventHandler OnRecipeSpawned;
     public event EventHandler OnRecipeCompleted;
+    public event EventHandler OnRecipeFailed;
 
     public static DeliveryManager Instance { get; private set; }
 
@@ -46,7 +47,7 @@ public class DeliveryManager : MonoBehaviour
         }
     }
 
-    public void DeliverRecipe(PlateKitchenObject plateKitchenObject)
+    public void DeliverRecipe(PlateKitchenObject plateKitchenObject, DeliveryCounter deliveryCounter)
     {
         foreach(RecipeSO waitingRecipe in waitingRecipes)
         {
@@ -88,6 +89,7 @@ public class DeliveryManager : MonoBehaviour
 
         //No matches found!
         //Player did not deliver a correct recipe
+        OnRecipeFailed?.Invoke(this, EventArgs.Empty);
     }
 
     public List<RecipeSO> GetWaitingRecipes()
