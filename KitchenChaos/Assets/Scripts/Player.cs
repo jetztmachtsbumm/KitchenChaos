@@ -129,12 +129,18 @@ public class Player : MonoBehaviour, IKitchenObjectParent
 
     private void Interact_performed(UnityEngine.InputSystem.InputAction.CallbackContext obj)
     {
-        selectedCounter?.Interact(this);
+        if (GameManager.Instance.IsGamePlaying())
+        {
+            selectedCounter?.Interact(this);
+        }
     }
 
     private void AltInteract_performed(UnityEngine.InputSystem.InputAction.CallbackContext obj)
     {
-        selectedCounter?.AltInteract(this);
+        if (GameManager.Instance.IsGamePlaying())
+        {
+            selectedCounter?.AltInteract(this);
+        }
     }
 
     private Vector3 GetMoveDir()
