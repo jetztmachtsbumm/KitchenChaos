@@ -7,12 +7,14 @@ public class PauseMenuUI : MonoBehaviour
 {
 
     [SerializeField] private Button resumeButton;
+    [SerializeField] private Button settingsButton;
     [SerializeField] private Button mainMenuButton;
 
     private void Awake()
     {
         resumeButton.onClick.AddListener(() => GameManager.Instance.TogglePauseGame());
         mainMenuButton.onClick.AddListener(() => Loader.Load(Loader.Scene.MainMenu));
+        settingsButton.onClick.AddListener(() => SettingsUI.Instance.Show());
     }
 
     private void Start()
