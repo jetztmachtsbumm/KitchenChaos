@@ -19,6 +19,7 @@ public class Player : MonoBehaviour, IKitchenObjectParent
             SelectedConter = selectedConter;
         }
     }
+    public event EventHandler OnPauseAction;
 
     [SerializeField] private float moveSpeed;
     [SerializeField] private LayerMask countersLayerMask;
@@ -44,9 +45,18 @@ public class Player : MonoBehaviour, IKitchenObjectParent
         playerInputActions.Player.Enable();
         playerInputActions.Player.Interact.performed += Interact_performed;
         playerInputActions.Player.AltInteract.performed += AltInteract_performed;
+        playerInputActions.Player.Pause.performed += Pause_performed;
 
         animator = GetComponentInChildren<Animator>();
         kitchenObjectHoldPoint = transform.Find("KitchenObjectHoldPoint");
+    }
+
+    private void OnDestroy()
+    {
+        playerInputActions.Player.Interact.performed -= Interact_performed;
+        playerInputActions.Player.AltInteract.performed -= AltInteract_performed;
+        playerInputActions.Player.Pause.performed -= Pause_performed;
+        playerInputActions.Dispose();
     }
 
     private void Update()
@@ -141,6 +151,11 @@ public class Player : MonoBehaviour, IKitchenObjectParent
         {
             selectedCounter?.AltInteract(this);
         }
+    }
+
+    private void Pause_performed(UnityEngine.InputSystem.InputAction.CallbackContext obj)
+    {
+        OnPauseAction?.Invoke(this, EventArgs.Empty);
     }
 
     private Vector3 GetMoveDir()

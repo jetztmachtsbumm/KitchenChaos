@@ -9,6 +9,11 @@ public class CuttingCounter : BaseCounter
 
     public static event EventHandler OnCut;
 
+    new public static void ResetStaticData()
+    {
+        OnCut = null;
+    }
+
     [SerializeField] private CuttingRecipeSO[] cuttingRecipes;
     [SerializeField] private Animator animator;
 

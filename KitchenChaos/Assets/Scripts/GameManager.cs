@@ -9,6 +9,7 @@ public class GameManager : MonoBehaviour
     public static GameManager Instance { get; private set; }
 
     public event EventHandler OnGameStateChanged;
+    public event EventHandler<bool> OnGamePauseToggled;
 
     private enum GameState
     {
@@ -22,7 +23,8 @@ public class GameManager : MonoBehaviour
     private float waitingToStartTimer = 1f;
     private float countdownToStartTimer = 3f;                                                             
     private float gamePlayingTimer;                                                                      
-    private float gamePlayingTimerMax = 10f;                                                                      
+    private float gamePlayingTimerMax = 10f;
+    private bool gamePaused;
                                                                                                           
     private void Awake()                                                                                  
     {                      
@@ -34,8 +36,13 @@ public class GameManager : MonoBehaviour
         Instance = this;
 
         gameState = GameState.WaitingToStart;                                                              
-    }                                                                                                      
-                                                                                                           
+    }
+
+    private void Start()
+    {
+        Player.Instance.OnPauseAction += Player_OnPauseAction;
+    }
+
     private void Update()                                                                                  
     {                                                                                                      
         switch (gameState)                                                                                 
@@ -68,6 +75,25 @@ public class GameManager : MonoBehaviour
             case GameState.GameOver:
                 break;
         }
+    }
+
+    private void Player_OnPauseAction(object sender, EventArgs e)
+    {
+        TogglePauseGame();
+    }
+
+    public void TogglePauseGame()
+    {
+        gamePaused = !gamePaused;
+        if (gamePaused)
+        {
+            Time.timeScale = 0;
+        }
+        else
+        {
+            Time.timeScale = 1f;
+        }
+        OnGamePauseToggled?.Invoke(this, gamePaused);
     }
 
     public bool IsGamePlaying()

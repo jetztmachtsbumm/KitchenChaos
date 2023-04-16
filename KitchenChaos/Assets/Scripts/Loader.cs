@@ -8,7 +8,7 @@ public static class Loader
 
     public enum Scene
     {
-        MainMenuScene,
+        MainMenu,
         GameScene,
         LoadingScene
     }
@@ -23,7 +23,7 @@ public static class Loader
 
     public static void LoaderCallback()
     {
-        SceneManager.LoadScene(Scene.GameScene.ToString());
+        SceneManager.LoadScene(targetScene.ToString());
     }
 
 }
