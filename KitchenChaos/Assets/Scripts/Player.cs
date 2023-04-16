@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class Player : MonoBehaviour, IKitchenObjectParent
 {
@@ -20,6 +21,17 @@ public class Player : MonoBehaviour, IKitchenObjectParent
         }
     }
     public event EventHandler OnPauseAction;
+
+    public enum Binding
+    {
+        MOVE_UP,
+        MOVE_DOWN,
+        MOVE_RIGHT,
+        MOVE_LEFT,
+        INTERACT,
+        ALT_INTERACT,
+        PAUSE_GAME
+    }
 
     [SerializeField] private float moveSpeed;
     [SerializeField] private LayerMask countersLayerMask;
@@ -42,6 +54,12 @@ public class Player : MonoBehaviour, IKitchenObjectParent
         Instance = this;
 
         playerInputActions = new PlayerInputActions();
+
+        if (PlayerPrefs.HasKey("KeyBindings"))
+        {
+            playerInputActions.LoadBindingOverridesFromJson(PlayerPrefs.GetString("KeyBindings"));
+        }
+
         playerInputActions.Player.Enable();
         playerInputActions.Player.Interact.performed += Interact_performed;
         playerInputActions.Player.AltInteract.performed += AltInteract_performed;
@@ -156,6 +174,76 @@ public class Player : MonoBehaviour, IKitchenObjectParent
     private void Pause_performed(UnityEngine.InputSystem.InputAction.CallbackContext obj)
     {
         OnPauseAction?.Invoke(this, EventArgs.Empty);
+    }
+
+    public string GetBindingText(Binding binding)
+    {
+        switch (binding)
+        {
+            default:
+            case Binding.MOVE_UP:
+                return playerInputActions.Player.Move.bindings[1].ToDisplayString();
+            case Binding.MOVE_DOWN:
+                return playerInputActions.Player.Move.bindings[2].ToDisplayString();
+            case Binding.MOVE_RIGHT:
+                return playerInputActions.Player.Move.bindings[3].ToDisplayString();
+            case Binding.MOVE_LEFT:
+                return playerInputActions.Player.Move.bindings[4].ToDisplayString();
+            case Binding.INTERACT:
+                return playerInputActions.Player.Interact.bindings[0].ToDisplayString();
+            case Binding.ALT_INTERACT:
+                return playerInputActions.Player.AltInteract.bindings[0].ToDisplayString();
+            case Binding.PAUSE_GAME:
+                return playerInputActions.Player.Pause.bindings[0].ToDisplayString();
+        }
+    }
+
+    public void RebindBinding(Binding binding, Action onActionRebound)
+    {
+        playerInputActions.Player.Disable();
+
+        InputAction inputAction = null;
+        int bindingIndex = 0;
+
+        switch (binding)
+        {
+            case Binding.MOVE_UP:
+                inputAction = playerInputActions.Player.Move;
+                bindingIndex = 1;
+                break;
+            case Binding.MOVE_DOWN:
+                inputAction = playerInputActions.Player.Move;
+                bindingIndex = 2;
+                break;
+            case Binding.MOVE_RIGHT:
+                inputAction = playerInputActions.Player.Move;
+                bindingIndex = 3;
+                break;
+            case Binding.MOVE_LEFT:
+                inputAction = playerInputActions.Player.Move;
+                bindingIndex = 4;
+                break;
+            case Binding.INTERACT:
+                inputAction = playerInputActions.Player.Interact;
+                bindingIndex = 0;
+                break;
+            case Binding.ALT_INTERACT:
+                inputAction = playerInputActions.Player.AltInteract;
+                bindingIndex = 0;
+                break;
+            case Binding.PAUSE_GAME:
+                inputAction = playerInputActions.Player.Pause;
+                bindingIndex = 0;
+                break;
+        }
+
+        inputAction.PerformInteractiveRebinding(bindingIndex).OnComplete(callback => {
+            callback.Dispose();
+            playerInputActions.Enable();
+            onActionRebound();
+            PlayerPrefs.SetString("KeyBindings", playerInputActions.SaveBindingOverridesAsJson());
+            PlayerPrefs.Save();
+        }).Start();
     }
 
     private Vector3 GetMoveDir()
