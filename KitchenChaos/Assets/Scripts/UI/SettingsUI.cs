@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
@@ -30,6 +31,8 @@ public class SettingsUI : MonoBehaviour
     [SerializeField] private TextMeshProUGUI pauseGameText;
     [SerializeField] private Transform pressToRebindKeyTransform;
 
+    private Action onSettingsMenuClosed;
+
     private void Awake()
     {
         if(Instance != null)
@@ -52,6 +55,7 @@ public class SettingsUI : MonoBehaviour
         backButton.onClick.AddListener(() =>
         {
             Hide();
+            onSettingsMenuClosed();
         });
 
         moveUpButton.onClick.AddListener(() => RebindBinding(Player.Binding.MOVE_UP));
@@ -102,9 +106,13 @@ public class SettingsUI : MonoBehaviour
         });
     }
 
-    public void Show()
+    public void Show(Action onSettingsMenuClosed)
     {
+        this.onSettingsMenuClosed = onSettingsMenuClosed;
+
         gameObject.SetActive(true);
+
+        soundEffectsButton.Select();
     }
 
     public void Hide()

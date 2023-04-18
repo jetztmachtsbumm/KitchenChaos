@@ -14,7 +14,10 @@ public class PauseMenuUI : MonoBehaviour
     {
         resumeButton.onClick.AddListener(() => GameManager.Instance.TogglePauseGame());
         mainMenuButton.onClick.AddListener(() => Loader.Load(Loader.Scene.MainMenu));
-        settingsButton.onClick.AddListener(() => SettingsUI.Instance.Show());
+        settingsButton.onClick.AddListener(() => {
+            Hide();
+            SettingsUI.Instance.Show(Show); 
+        });
     }
 
     private void Start()
@@ -38,6 +41,8 @@ public class PauseMenuUI : MonoBehaviour
     private void Show()
     {
         gameObject.SetActive(true);
+
+        resumeButton.Select();
     }
 
     private void Hide()
