@@ -20,7 +20,7 @@ public class PlatesCounter : BaseCounter
         {
             spawnPlateTimer = 0f;
 
-            if(platesSpawned < maxPlates)
+            if(GameManager.Instance.IsGamePlaying() && platesSpawned < maxPlates)
             {
                 platesSpawned++;
                 Transform plateVisual = Instantiate(plateKitchenObjectSO.prefab, GetKitchenObjectFollowPoint());

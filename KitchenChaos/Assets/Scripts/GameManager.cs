@@ -8,10 +8,10 @@ public class GameManager : MonoBehaviour
  
     public static GameManager Instance { get; private set; }
 
-    public event EventHandler OnGameStateChanged;
+    public event EventHandler<GameState> OnGameStateChanged;
     public event EventHandler<bool> OnGamePauseToggled;
 
-    private enum GameState
+    public enum GameState
     {
         WaitingToStart,
         CountdownToStart,
@@ -20,10 +20,9 @@ public class GameManager : MonoBehaviour
     }
 
     private GameState gameState;
-    private float waitingToStartTimer = 1f;
     private float countdownToStartTimer = 3f;                                                             
     private float gamePlayingTimer;                                                                      
-    private float gamePlayingTimerMax = 10f;
+    private float gamePlayingTimerMax = 2 * 60;
     private bool gamePaused;
                                                                                                           
     private void Awake()                                                                                  
@@ -41,19 +40,14 @@ public class GameManager : MonoBehaviour
     private void Start()
     {
         Player.Instance.OnPauseAction += Player_OnPauseAction;
+        Player.Instance.OnInteractAction += Player_OnInteractAction;
     }
 
     private void Update()                                                                                  
     {                                                                                                      
         switch (gameState)                                                                                 
         {                                                                                                  
-            case GameState.WaitingToStart:                                                                 
-                waitingToStartTimer -= Time.deltaTime;                                                     
-                if(waitingToStartTimer <= 0)                                                               
-                {                                                                                          
-                    gameState = GameState.CountdownToStart;
-                    OnGameStateChanged?.Invoke(this, EventArgs.Empty);
-                }                                                                                          
+            case GameState.WaitingToStart:                                                                                          
                 break;                                                                                     
             case GameState.CountdownToStart:                                                               
                 countdownToStartTimer -= Time.deltaTime;                                                   
@@ -61,7 +55,7 @@ public class GameManager : MonoBehaviour
                 {                                                                                          
                     gameState = GameState.GamePlaying;
                     gamePlayingTimer = gamePlayingTimerMax;
-                    OnGameStateChanged?.Invoke(this, EventArgs.Empty);
+                    OnGameStateChanged?.Invoke(this, gameState);
                 }                                                                                          
                 break;                                                                                     
             case GameState.GamePlaying:                                                                    
@@ -69,7 +63,7 @@ public class GameManager : MonoBehaviour
                 if (gamePlayingTimer <= 0)                                                                      
                 {                                                                                          
                     gameState = GameState.GameOver;
-                    OnGameStateChanged?.Invoke(this, EventArgs.Empty);
+                    OnGameStateChanged?.Invoke(this, gameState);
                 }
                 break;
             case GameState.GameOver:
@@ -80,6 +74,15 @@ public class GameManager : MonoBehaviour
     private void Player_OnPauseAction(object sender, EventArgs e)
     {
         TogglePauseGame();
+    }
+
+    private void Player_OnInteractAction(object sender, EventArgs e)
+    {
+        if(gameState == GameState.WaitingToStart)
+        {
+            gameState = GameState.CountdownToStart;
+            OnGameStateChanged?.Invoke(this, gameState);
+        }
     }
 
     public void TogglePauseGame()

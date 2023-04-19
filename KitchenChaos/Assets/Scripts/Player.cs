@@ -21,6 +21,8 @@ public class Player : MonoBehaviour, IKitchenObjectParent
         }
     }
     public event EventHandler OnPauseAction;
+    public event EventHandler OnInteractAction;
+    public event EventHandler OnKeyRebind;
 
     public enum Binding
     {
@@ -95,7 +97,7 @@ public class Player : MonoBehaviour, IKitchenObjectParent
         if (!canMove)
         {
             Vector3 moveDirX = new Vector3(moveDir.x, 0, 0).normalized;
-            canMove = moveDir.x < -0.5f || moveDir.x > 0.5f && !Physics.CapsuleCast(transform.position, transform.position + Vector3.up * playerHeight, playerRadius, moveDirX, moveDistance);
+            canMove = (moveDir.x < -0.5f || moveDir.x > 0.5f) && !Physics.CapsuleCast(transform.position, transform.position + Vector3.up * playerHeight, playerRadius, moveDirX, moveDistance);
 
             if (canMove)
             {
@@ -104,7 +106,7 @@ public class Player : MonoBehaviour, IKitchenObjectParent
             else
             {
                 Vector3 moveDirZ = new Vector3(0, 0, moveDir.z).normalized;
-                canMove = moveDir.z < -0.5f || moveDir.z > 0.5f && !Physics.CapsuleCast(transform.position, transform.position + Vector3.up * playerHeight, playerRadius, moveDirZ, moveDistance);
+                canMove = (moveDir.z < -0.5f || moveDir.z > 0.5f) && !Physics.CapsuleCast(transform.position, transform.position + Vector3.up * playerHeight, playerRadius, moveDirZ, moveDistance);
 
                 if (canMove)
                 {
@@ -161,6 +163,7 @@ public class Player : MonoBehaviour, IKitchenObjectParent
         {
             selectedCounter?.Interact(this);
         }
+        OnInteractAction?.Invoke(this, EventArgs.Empty);
     }
 
     private void AltInteract_performed(UnityEngine.InputSystem.InputAction.CallbackContext obj)
@@ -243,6 +246,7 @@ public class Player : MonoBehaviour, IKitchenObjectParent
             onActionRebound();
             PlayerPrefs.SetString("KeyBindings", playerInputActions.SaveBindingOverridesAsJson());
             PlayerPrefs.Save();
+            OnKeyRebind?.Invoke(this, EventArgs.Empty);
         }).Start();
     }
 

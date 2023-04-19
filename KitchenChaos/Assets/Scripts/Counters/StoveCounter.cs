@@ -67,7 +67,7 @@ public class StoveCounter : BaseCounter
                     break;
                 case State.Fried:
                     burningTimer += Time.deltaTime;
-                    fryingProgressBar.fillAmount = burningTimer / burningRecipe.burningTimerMax;
+                    fryingProgressBar.fillAmount = GetBurningProgressNormalized();
                     EnableVisualEffects();
                     if (burningTimer > burningRecipe.burningTimerMax)
                     {
@@ -168,6 +168,11 @@ public class StoveCounter : BaseCounter
         sizzlingParticles.gameObject.SetActive(false);
         stoveGlowingVisual.gameObject.SetActive(false);
         HideProgressBar();
+    }
+
+    public float GetBurningProgressNormalized()
+    {
+        return burningTimer / burningRecipe.burningTimerMax;
     }
 
     private void ShowProgressBar()
