@@ -88,22 +88,22 @@ public class SettingsUI : MonoBehaviour
         soundEffectsText.text = "Sound Effects: " + Mathf.Round(SoundManager.Instance.GetVolume() * 10f).ToString();
         musicText.text = "Music: " + Mathf.Round(MusicManager.Instance.GetVolume() * 10f).ToString();
 
-        moveUpText.text = Player.Instance.GetBindingText(Player.Binding.MOVE_UP);
+        /*moveUpText.text = Player.Instance.GetBindingText(Player.Binding.MOVE_UP);
         moveDownText.text = Player.Instance.GetBindingText(Player.Binding.MOVE_DOWN);
         moveRightText.text = Player.Instance.GetBindingText(Player.Binding.MOVE_RIGHT);
         moveLeftText.text = Player.Instance.GetBindingText(Player.Binding.MOVE_LEFT);
         interactText.text = Player.Instance.GetBindingText(Player.Binding.INTERACT);
         altInteractText.text = Player.Instance.GetBindingText(Player.Binding.ALT_INTERACT);
-        pauseGameText.text = Player.Instance.GetBindingText(Player.Binding.PAUSE_GAME);
+        pauseGameText.text = Player.Instance.GetBindingText(Player.Binding.PAUSE_GAME);*/
     }
 
     private void RebindBinding(Player.Binding binding)
     {
         ShowPressToRebindKey();
-        Player.Instance.RebindBinding(binding, () => {
+        /*Player.Instance.RebindBinding(binding, () => {
             HidePressToRebindKey();
             UpdateVisual();
-        });
+        });*/
     }
 
     public void Show(Action onSettingsMenuClosed)

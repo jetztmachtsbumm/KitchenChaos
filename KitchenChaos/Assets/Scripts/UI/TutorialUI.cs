@@ -20,7 +20,7 @@ public class TutorialUI : MonoBehaviour
 
     private void Start()
     {
-        Player.Instance.OnKeyRebind += Player_OnKeyRebind;
+        //Player.Instance.OnKeyRebind += Player_OnKeyRebind;
         GameManager.Instance.OnGameStateChanged += GameManager_OnGameStateChanged;
         UpdateVisual();
         Show();
@@ -41,7 +41,7 @@ public class TutorialUI : MonoBehaviour
 
     private void UpdateVisual()
     {
-        keyMoveUpText.text = Player.Instance.GetBindingText(Player.Binding.MOVE_UP);
+        /*keyMoveUpText.text = Player.Instance.GetBindingText(Player.Binding.MOVE_UP);
         keyMoveDownText.text = Player.Instance.GetBindingText(Player.Binding.MOVE_DOWN);
         keyMoveRightText.text = Player.Instance.GetBindingText(Player.Binding.MOVE_RIGHT);
         keyMoveLeftText.text = Player.Instance.GetBindingText(Player.Binding.MOVE_LEFT);
@@ -50,7 +50,7 @@ public class TutorialUI : MonoBehaviour
         keyPauseText.text = Player.Instance.GetBindingText(Player.Binding.PAUSE_GAME);
         keyInteractGamepadText.text = "X";
         keyAltInteractGamepadText.text = "RT";
-        keyPauseGamepadText.text = ">";
+        keyPauseGamepadText.text = ">";*/
     }
 
     private void Show()

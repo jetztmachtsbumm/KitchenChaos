@@ -1,13 +1,14 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class Player : MonoBehaviour, IKitchenObjectParent
+public class Player : NetworkBehaviour, IKitchenObjectParent
 {
 
-    public static Player Instance { get; private set; }
+    //public static Player Instance { get; private set; }
 
     public event EventHandler OnPickup;
     public event EventHandler<OnSelectedCounterChangedEventArgs> OnSelectedCounterChanged;
@@ -48,12 +49,7 @@ public class Player : MonoBehaviour, IKitchenObjectParent
 
     private void Awake()
     {
-        if(Instance != null)
-        {
-            Debug.LogWarning("There are more than one 'Player' objects active in the scene");
-            Destroy(gameObject);
-        }
-        Instance = this;
+        //Instance = this;
 
         playerInputActions = new PlayerInputActions();
 
@@ -71,7 +67,7 @@ public class Player : MonoBehaviour, IKitchenObjectParent
         kitchenObjectHoldPoint = transform.Find("KitchenObjectHoldPoint");
     }
 
-    private void OnDestroy()
+    new private void OnDestroy()
     {
         playerInputActions.Player.Interact.performed -= Interact_performed;
         playerInputActions.Player.AltInteract.performed -= AltInteract_performed;

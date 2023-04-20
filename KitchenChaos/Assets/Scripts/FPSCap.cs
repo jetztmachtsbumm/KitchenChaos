@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class EnableVSync : MonoBehaviour
+public class FPSCap : MonoBehaviour
 {
 
     private void Awake()

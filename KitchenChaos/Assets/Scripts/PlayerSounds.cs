@@ -15,10 +15,10 @@ public class PlayerSounds : MonoBehaviour
         {
             footstepTimer = footstepTimerMax;
 
-            if (Player.Instance.IsWalking())
+            /*if (Player.Instance.IsWalking())
             {
                 SoundManager.Instance.PlayFootstepSound(Player.Instance.transform.position);
-            }
+            }*/
         }
     }
 

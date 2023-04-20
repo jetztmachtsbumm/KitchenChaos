@@ -20,9 +20,9 @@ public class GameManager : MonoBehaviour
     }
 
     private GameState gameState;
-    private float countdownToStartTimer = 3f;                                                             
+    private float countdownToStartTimer = 1f;                                                             
     private float gamePlayingTimer;                                                                      
-    private float gamePlayingTimerMax = 2 * 60;
+    private float gamePlayingTimerMax = 5 * 60;
     private bool gamePaused;
                                                                                                           
     private void Awake()                                                                                  
@@ -39,8 +39,10 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
-        Player.Instance.OnPauseAction += Player_OnPauseAction;
-        Player.Instance.OnInteractAction += Player_OnInteractAction;
+        //Player.Instance.OnPauseAction += Player_OnPauseAction;
+        //Player.Instance.OnInteractAction += Player_OnInteractAction;
+        gameState = GameState.CountdownToStart;
+        OnGameStateChanged?.Invoke(this, gameState);
     }
 
     private void Update()                                                                                  
