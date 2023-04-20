@@ -67,6 +67,11 @@ public class Player : NetworkBehaviour, IKitchenObjectParent
         kitchenObjectHoldPoint = transform.Find("KitchenObjectHoldPoint");
     }
 
+    private void Start()
+    {
+        transform.position = new Vector3(7, 0, -1);
+    }
+
     new private void OnDestroy()
     {
         playerInputActions.Player.Interact.performed -= Interact_performed;
