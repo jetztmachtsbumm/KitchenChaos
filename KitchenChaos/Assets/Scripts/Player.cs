@@ -8,7 +8,15 @@ using UnityEngine.InputSystem;
 public class Player : NetworkBehaviour, IKitchenObjectParent
 {
 
-    //public static Player Instance { get; private set; }
+    public static Player LocalInstance { get; private set; }
+
+    public static event EventHandler OnAnyPlayerSpawned;
+    public static event EventHandler OnAnyPlayerPickup;
+
+    public static void ResetStaticData()
+    {
+        OnAnyPlayerSpawned = null;
+    }
 
     public event EventHandler OnPickup;
     public event EventHandler<OnSelectedCounterChangedEventArgs> OnSelectedCounterChanged;
@@ -47,24 +55,29 @@ public class Player : NetworkBehaviour, IKitchenObjectParent
     private Transform kitchenObjectHoldPoint;
     private bool isWalking;
 
-    private void Awake()
+    public override void OnNetworkSpawn()
     {
-        //Instance = this;
-
-        playerInputActions = new PlayerInputActions();
-
-        if (PlayerPrefs.HasKey("KeyBindings"))
+        if (IsOwner)
         {
-            playerInputActions.LoadBindingOverridesFromJson(PlayerPrefs.GetString("KeyBindings"));
+            LocalInstance = this;
+
+            playerInputActions = new PlayerInputActions();
+
+            if (PlayerPrefs.HasKey("KeyBindings"))
+            {
+                playerInputActions.LoadBindingOverridesFromJson(PlayerPrefs.GetString("KeyBindings"));
+            }
+
+            playerInputActions.Player.Enable();
+            playerInputActions.Player.Interact.performed += Interact_performed;
+            playerInputActions.Player.AltInteract.performed += AltInteract_performed;
+            playerInputActions.Player.Pause.performed += Pause_performed;
+
+            animator = GetComponentInChildren<Animator>();
+            kitchenObjectHoldPoint = transform.Find("KitchenObjectHoldPoint");
+
+            OnAnyPlayerSpawned?.Invoke(this, EventArgs.Empty);
         }
-
-        playerInputActions.Player.Enable();
-        playerInputActions.Player.Interact.performed += Interact_performed;
-        playerInputActions.Player.AltInteract.performed += AltInteract_performed;
-        playerInputActions.Player.Pause.performed += Pause_performed;
-
-        animator = GetComponentInChildren<Animator>();
-        kitchenObjectHoldPoint = transform.Find("KitchenObjectHoldPoint");
     }
 
     private void Start()
@@ -163,7 +176,7 @@ public class Player : NetworkBehaviour, IKitchenObjectParent
         }
     }
 
-    private void Interact_performed(UnityEngine.InputSystem.InputAction.CallbackContext obj)
+    private void Interact_performed(InputAction.CallbackContext obj)
     {
         if (GameManager.Instance.IsGamePlaying())
         {
@@ -172,7 +185,7 @@ public class Player : NetworkBehaviour, IKitchenObjectParent
         OnInteractAction?.Invoke(this, EventArgs.Empty);
     }
 
-    private void AltInteract_performed(UnityEngine.InputSystem.InputAction.CallbackContext obj)
+    private void AltInteract_performed(InputAction.CallbackContext obj)
     {
         if (GameManager.Instance.IsGamePlaying())
         {
@@ -180,7 +193,7 @@ public class Player : NetworkBehaviour, IKitchenObjectParent
         }
     }
 
-    private void Pause_performed(UnityEngine.InputSystem.InputAction.CallbackContext obj)
+    private void Pause_performed(InputAction.CallbackContext obj)
     {
         OnPauseAction?.Invoke(this, EventArgs.Empty);
     }
@@ -280,6 +293,7 @@ public class Player : NetworkBehaviour, IKitchenObjectParent
         if(kitchenObject != null)
         {
             OnPickup?.Invoke(this, EventArgs.Empty);
+            OnAnyPlayerPickup?.Invoke(this, EventArgs.Empty);
         }
     }
 
