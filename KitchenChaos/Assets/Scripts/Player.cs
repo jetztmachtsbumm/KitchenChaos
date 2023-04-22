@@ -46,13 +46,13 @@ public class Player : NetworkBehaviour, IKitchenObjectParent
 
     [SerializeField] private float moveSpeed;
     [SerializeField] private LayerMask countersLayerMask;
+    [SerializeField] private Transform kitchenObjectHoldPoint;
 
     private PlayerInputActions playerInputActions;
     private Animator animator;
     private Vector3 lastInteractDirection;
     private BaseCounter selectedCounter;
     private KitchenObject kitchenObject;
-    private Transform kitchenObjectHoldPoint;
     private bool isWalking;
 
     public override void OnNetworkSpawn()
@@ -74,7 +74,6 @@ public class Player : NetworkBehaviour, IKitchenObjectParent
             playerInputActions.Player.Pause.performed += Pause_performed;
 
             animator = GetComponentInChildren<Animator>();
-            kitchenObjectHoldPoint = transform.Find("KitchenObjectHoldPoint");
 
             OnAnyPlayerSpawned?.Invoke(this, EventArgs.Empty);
         }
@@ -315,5 +314,10 @@ public class Player : NetworkBehaviour, IKitchenObjectParent
     public bool IsWalking()
     {
         return isWalking;
+    }
+
+    public NetworkObject GetNetworkObject()
+    {
+        return NetworkObject;
     }
 }

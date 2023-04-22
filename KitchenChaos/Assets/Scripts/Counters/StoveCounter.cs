@@ -29,9 +29,8 @@ public class StoveCounter : BaseCounter
     private Transform stoveGlowingVisual;
     private Image fryingProgressBar;
 
-    protected override void Awake()
+    private void Awake()
     {
-        base.Awake();
         sizzlingParticles = transform.Find("StoveCounter_Visual").Find("SizzlingParticles");
         stoveGlowingVisual = transform.Find("StoveCounter_Visual").Find("StoveOnVisual");
         fryingProgressBar = transform.Find("ProgressBarUI").Find("Bar").GetComponent<Image>();

@@ -1022,6 +1022,11 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: -9021991128524436998, guid: c84ba8de9eaa91a49932b712a720db35,
+        type: 3}
+      propertyPath: GlobalObjectIdHash
+      value: 951099334
+      objectReference: {fileID: 0}
     - target: {fileID: 2340882718598855214, guid: c84ba8de9eaa91a49932b712a720db35,
         type: 3}
       propertyPath: m_RootOrder
@@ -1134,10 +1139,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 94324619c81082545b637d96102c996c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  counterTopPoint: {fileID: 4947974320572567239}
   fryingRecipes:
   - {fileID: 11400000, guid: b16ef70f5d9ba084b97fcae801d29115, type: 2}
   burningRecipes:
   - {fileID: 11400000, guid: 0389c847e67a3de4c9be4202e5b56ece, type: 2}
+--- !u!4 &4947974320572567239 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 2896049780507620884, guid: c84ba8de9eaa91a49932b712a720db35,
+    type: 3}
+  m_PrefabInstance: {fileID: 7825683316630796499}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &5541140502173565693 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 2340882718598855214, guid: c84ba8de9eaa91a49932b712a720db35,

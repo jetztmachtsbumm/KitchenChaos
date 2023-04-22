@@ -20,9 +20,8 @@ public class CuttingCounter : BaseCounter
     private int cuttingProgress;
     private Image cuttingProgressBar;
 
-    protected override void Awake()
+    private void Awake()
     {
-        base.Awake();
         cuttingProgressBar = transform.Find("ProgressBarUI").Find("Bar").GetComponent<Image>();
         HideProgressBar();
     }

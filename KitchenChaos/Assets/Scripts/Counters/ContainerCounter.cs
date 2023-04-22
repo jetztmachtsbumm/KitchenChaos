@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
 
 public class ContainerCounter : BaseCounter
@@ -9,9 +10,8 @@ public class ContainerCounter : BaseCounter
 
     private Animator animator;
 
-    protected override void Awake()
+    private void Awake()
     {
-        base.Awake();
         animator = transform.Find("ContainerCounter_Visual").GetComponent<Animator>();
     }
 
@@ -23,6 +23,18 @@ public class ContainerCounter : BaseCounter
         }
 
         KitchenObject.SpawnKitchenObject(kitchenObjectSO, player);
+        InteractLogicServerRpc();
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    private void InteractLogicServerRpc()
+    {
+        InteractLogicClientRpc();
+    }
+
+    [ClientRpc]
+    private void InteractLogicClientRpc()
+    {
         animator.SetTrigger("OpenClose");
     }
 

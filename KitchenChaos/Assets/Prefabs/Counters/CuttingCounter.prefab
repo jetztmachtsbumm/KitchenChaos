@@ -116,6 +116,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8886ae8eeb534ab478aeb11a9e0a2d98, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  invert: 0
 --- !u!1 &667380209223544127
 GameObject:
   m_ObjectHideFlags: 0
@@ -466,6 +467,11 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: -9021991128524436998, guid: c84ba8de9eaa91a49932b712a720db35,
+        type: 3}
+      propertyPath: GlobalObjectIdHash
+      value: 951099334
+      objectReference: {fileID: 0}
     - target: {fileID: 2340882718598855214, guid: c84ba8de9eaa91a49932b712a720db35,
         type: 3}
       propertyPath: m_RootOrder
@@ -547,6 +553,12 @@ PrefabInstance:
       insertIndex: -1
       addedObject: {fileID: 498445841748042286}
   m_SourcePrefab: {fileID: 100100000, guid: c84ba8de9eaa91a49932b712a720db35, type: 3}
+--- !u!4 &4764791507980631465 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 2896049780507620884, guid: c84ba8de9eaa91a49932b712a720db35,
+    type: 3}
+  m_PrefabInstance: {fileID: 7651375316899367869}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &4936105729881260165 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 3364108991862754104, guid: c84ba8de9eaa91a49932b712a720db35,
@@ -565,6 +577,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1be1ed0bb8be0444ebce91ba0ec04619, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  counterTopPoint: {fileID: 4764791507980631465}
   cuttingRecipes:
   - {fileID: 11400000, guid: 249ed5d17588af54d9440cad5fc03e7a, type: 2}
   - {fileID: 11400000, guid: 62cec6dcfbba16541978c5c46e37647d, type: 2}
