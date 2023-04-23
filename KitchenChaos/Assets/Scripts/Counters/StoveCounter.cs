@@ -139,7 +139,7 @@ public class StoveCounter : BaseCounter
                 {
                     if (plateKitchenObject.TryAddIngredient(GetKitchenObject().GetKitchenObjectSO()))
                     {
-                        GetKitchenObject().DestroySelf();
+                        KitchenObject.DestroyKitchenObject(GetKitchenObject());
                         DisableVisualEffects();
                         SetStateIdleServerRpc();
                     }
