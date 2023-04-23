@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -34,11 +35,9 @@ public class CuttingCounter : BaseCounter
             {
                 if (IsValidKitchenObject(player.GetKitchenObject().GetKitchenObjectSO()))
                 {
-                    player.GetKitchenObject().SetKitchenObjectParent(this, true);
-                    CuttingRecipeSO cuttingRecipe = GetCuttingRecipeFromInput(GetKitchenObject().GetKitchenObjectSO());
-                    cuttingProgress = 0;
-                    cuttingProgressBar.fillAmount = (float) cuttingProgress / cuttingRecipe.cuttingProgressMax;
-                    ShowProgressBar();
+                    KitchenObject kitchenObject = player.GetKitchenObject();
+                    kitchenObject.SetKitchenObjectParent(this, true);
+                    InteractLogicServerRpc();
                 }
             }
         }
@@ -68,16 +67,40 @@ public class CuttingCounter : BaseCounter
                     kitchenObject.SetKitchenObjectParent(player, false);
                     playerKitchenObject.SetKitchenObjectParent(this, false);
 
-                    CuttingRecipeSO cuttingRecipe = GetCuttingRecipeFromInput(GetKitchenObject().GetKitchenObjectSO());
-                    cuttingProgress = 0;
-                    cuttingProgressBar.fillAmount = (float)cuttingProgress / cuttingRecipe.cuttingProgressMax;
-                    ShowProgressBar();
+                    InteractLogicServerRpc();
                 }
             }
         }
     }
 
+    [ServerRpc(RequireOwnership = false)]
+    private void InteractLogicServerRpc()
+    {
+        InteractLogicClientRpc();
+    }
+
+    [ClientRpc]
+    private void InteractLogicClientRpc()
+    {
+        cuttingProgress = 0;
+        cuttingProgressBar.fillAmount = 0f;
+        ShowProgressBar();
+    }
+
     public override void AltInteract(Player player)
+    {
+        CutObjectServerRpc();
+        TestCuttingProgressDoneServerRpc();
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    private void CutObjectServerRpc()
+    {
+        CutObjectClientRpc();
+    }
+
+    [ClientRpc]
+    private void CutObjectClientRpc()
     {
         if (HasKitchenObject() && IsValidKitchenObject(GetKitchenObject().GetKitchenObjectSO()))
         {
@@ -90,17 +113,22 @@ public class CuttingCounter : BaseCounter
             cuttingProgressBar.fillAmount = (float)cuttingProgress / cuttingRecipe.cuttingProgressMax;
 
             animator.SetTrigger("Cut");
+        }
+    }
 
-            if (cuttingProgress >= cuttingRecipe.cuttingProgressMax)
-            {
-                HideProgressBar();
+    [ServerRpc(RequireOwnership = false)]
+    private void TestCuttingProgressDoneServerRpc()
+    {
+        CuttingRecipeSO cuttingRecipe = GetCuttingRecipeFromInput(GetKitchenObject().GetKitchenObjectSO());
+        if (cuttingProgress >= cuttingRecipe.cuttingProgressMax)
+        {
+            HideProgressBar();
 
-                KitchenObjectSO recipeOutput = GetCuttingRecipeOutput(GetKitchenObject().GetKitchenObjectSO());
+            KitchenObjectSO recipeOutput = GetCuttingRecipeOutput(GetKitchenObject().GetKitchenObjectSO());
 
-                GetKitchenObject().DestroySelf();
+            KitchenObject.DestroyKitchenObject(GetKitchenObject());
 
-                KitchenObject.SpawnKitchenObject(recipeOutput, this);
-            }
+            KitchenObject.SpawnKitchenObject(recipeOutput, this);
         }
     }
 
@@ -133,6 +161,18 @@ public class CuttingCounter : BaseCounter
     }
 
     private void HideProgressBar()
+    {
+        HideProgressBarServerRpc();
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    private void HideProgressBarServerRpc()
+    {
+        HideProgressBarClientRpc();
+    }
+
+    [ClientRpc]
+    private void HideProgressBarClientRpc()
     {
         cuttingProgressBar.transform.parent.gameObject.SetActive(false);
     }
