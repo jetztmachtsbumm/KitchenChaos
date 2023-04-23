@@ -1,15 +1,17 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
 
-public class GameManager : MonoBehaviour
+public class GameManager : NetworkBehaviour
 {
  
     public static GameManager Instance { get; private set; }
 
     public event EventHandler<GameState> OnGameStateChanged;
     public event EventHandler<bool> OnGamePauseToggled;
+    public event EventHandler OnLocalPlayerReadyChanged;
 
     public enum GameState
     {
@@ -19,11 +21,13 @@ public class GameManager : MonoBehaviour
         GameOver
     }
 
-    private GameState gameState;
-    private float countdownToStartTimer = 1f;                                                             
-    private float gamePlayingTimer;                                                                      
-    private float gamePlayingTimerMax = 5 * 60;
+    private NetworkVariable<GameState> gameState = new NetworkVariable<GameState>(GameState.WaitingToStart);
+    private bool isLocalPlayerReady;
+    private NetworkVariable<float> countdownToStartTimer = new NetworkVariable<float>(3f);                                                             
+    private NetworkVariable<float> gamePlayingTimer = new NetworkVariable<float>(0f);               
+    private float gamePlayingTimerMax = 90f;
     private bool gamePaused;
+    private Dictionary<ulong, bool> playerReadyDictionary;
                                                                                                           
     private void Awake()                                                                                  
     {                      
@@ -34,38 +38,43 @@ public class GameManager : MonoBehaviour
         }
         Instance = this;
 
-        gameState = GameState.WaitingToStart;                                                              
+        playerReadyDictionary = new Dictionary<ulong, bool>();
     }
 
-    private void Start()
+    public override void OnNetworkSpawn()
     {
-        //Player.Instance.OnPauseAction += Player_OnPauseAction;
-        //Player.Instance.OnInteractAction += Player_OnInteractAction;
-        gameState = GameState.CountdownToStart;
-        OnGameStateChanged?.Invoke(this, gameState);
+        gameState.OnValueChanged += GameState_OnValueChanged;
+    }
+
+    private void GameState_OnValueChanged(GameState previousValue, GameState newValue)
+    {
+        OnGameStateChanged?.Invoke(this, gameState.Value);
     }
 
     private void Update()                                                                                  
-    {                                                                                                      
-        switch (gameState)                                                                                 
+    {
+        if (!IsServer)
+        {
+            return;
+        }
+
+        switch (gameState.Value)                                                                                 
         {                                                                                                  
             case GameState.WaitingToStart:                                                                                          
                 break;                                                                                     
             case GameState.CountdownToStart:                                                               
-                countdownToStartTimer -= Time.deltaTime;                                                   
-                if (countdownToStartTimer <= 0)                                                            
+                countdownToStartTimer.Value -= Time.deltaTime;                                                   
+                if (countdownToStartTimer.Value <= 0)                                                            
                 {                                                                                          
-                    gameState = GameState.GamePlaying;
-                    gamePlayingTimer = gamePlayingTimerMax;
-                    OnGameStateChanged?.Invoke(this, gameState);
+                    gameState.Value = GameState.GamePlaying;
+                    gamePlayingTimer.Value = gamePlayingTimerMax;
                 }                                                                                          
                 break;                                                                                     
             case GameState.GamePlaying:                                                                    
-                gamePlayingTimer -= Time.deltaTime;                                                             
-                if (gamePlayingTimer <= 0)                                                                      
+                gamePlayingTimer.Value -= Time.deltaTime;                                                             
+                if (gamePlayingTimer.Value <= 0)                                                                      
                 {                                                                                          
-                    gameState = GameState.GameOver;
-                    OnGameStateChanged?.Invoke(this, gameState);
+                    gameState.Value = GameState.GameOver;
                 }
                 break;
             case GameState.GameOver:
@@ -73,17 +82,39 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    private void Player_OnPauseAction(object sender, EventArgs e)
+    public void Player_OnPauseAction(object sender, EventArgs e)
     {
         TogglePauseGame();
     }
 
-    private void Player_OnInteractAction(object sender, EventArgs e)
+    public void Player_OnInteractAction(object sender, EventArgs e)
     {
-        if(gameState == GameState.WaitingToStart)
+        if(gameState.Value == GameState.WaitingToStart)
         {
-            gameState = GameState.CountdownToStart;
-            OnGameStateChanged?.Invoke(this, gameState);
+            isLocalPlayerReady = true;
+            OnLocalPlayerReadyChanged?.Invoke(this, EventArgs.Empty);
+            SetPlayerReadyServerRpc();
+        }
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    private void SetPlayerReadyServerRpc(ServerRpcParams serverRpcParams = default)
+    {
+        playerReadyDictionary[serverRpcParams.Receive.SenderClientId] = true;
+
+        bool allClientsReady = true;
+        foreach(ulong clientId in NetworkManager.Singleton.ConnectedClientsIds)
+        {
+            if (!playerReadyDictionary.ContainsKey(clientId) || !playerReadyDictionary[clientId])
+            {
+                allClientsReady = false;
+                break;
+            }
+        }
+
+        if (allClientsReady)
+        {
+            gameState.Value = GameState.CountdownToStart;
         }
     }
 
@@ -103,27 +134,32 @@ public class GameManager : MonoBehaviour
 
     public bool IsGamePlaying()
     {
-        return gameState == GameState.GamePlaying;
+        return gameState.Value == GameState.GamePlaying;
     }
 
     public bool IsCountdownToStartActive()
     {
-        return gameState == GameState.CountdownToStart;
+        return gameState.Value == GameState.CountdownToStart;
     }
 
     public float GetCountdownToStartTimer()
     {
-        return countdownToStartTimer;
+        return countdownToStartTimer.Value;
     }
 
     public bool IsGameOver()
     {
-        return gameState == GameState.GameOver;
+        return gameState.Value == GameState.GameOver;
     }
 
     public float GetGamePlayingTimerNormalized()
     {
-        return gamePlayingTimer / gamePlayingTimerMax;
+        return gamePlayingTimer.Value / gamePlayingTimerMax;
+    }
+
+    public bool IsLocalPlayerReady()
+    {
+        return isLocalPlayerReady;
     }
 
 }

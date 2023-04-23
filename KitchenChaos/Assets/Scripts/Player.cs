@@ -78,6 +78,13 @@ public class Player : NetworkBehaviour, IKitchenObjectParent
             animator = GetComponentInChildren<Animator>();
 
             transform.position = spawnPositions[(int)OwnerClientId];
+
+            OnPauseAction += GameManager.Instance.Player_OnPauseAction;
+            OnInteractAction += GameManager.Instance.Player_OnInteractAction;
+            OnKeyRebind += TutorialUI.Instance.Player_OnKeyRebind;
+            TutorialUI.Instance.UpdateVisual();
+            TutorialUI.Instance.Show();
+
             OnAnyPlayerSpawned?.Invoke(this, EventArgs.Empty);
         }
     }

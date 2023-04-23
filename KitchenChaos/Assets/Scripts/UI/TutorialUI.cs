@@ -6,6 +6,8 @@ using UnityEngine;
 public class TutorialUI : MonoBehaviour
 {
 
+    public static TutorialUI Instance { get; private set; }
+
     [SerializeField] private TextMeshProUGUI keyMoveUpText;
     [SerializeField] private TextMeshProUGUI keyMoveLeftText;
     [SerializeField] private TextMeshProUGUI keyMoveDownText;
@@ -18,47 +20,54 @@ public class TutorialUI : MonoBehaviour
     [SerializeField] private TextMeshProUGUI keyAltInteractGamepadText;
     [SerializeField] private TextMeshProUGUI keyPauseGamepadText;
 
-    private void Start()
+    private void Awake()
     {
-        //Player.Instance.OnKeyRebind += Player_OnKeyRebind;
-        GameManager.Instance.OnGameStateChanged += GameManager_OnGameStateChanged;
-        UpdateVisual();
-        Show();
+        if(Instance != null)
+        {
+            Debug.LogWarning("There is more than one TutorialUI object active in the scene!");
+            Destroy(gameObject);
+        }
+        Instance = this;
     }
 
-    private void GameManager_OnGameStateChanged(object sender, GameManager.GameState e)
+    private void Start()
     {
-        if (GameManager.Instance.IsCountdownToStartActive())
+        GameManager.Instance.OnLocalPlayerReadyChanged += GameManager_OnLocalPlayerReadyChanged;
+    }
+
+    private void GameManager_OnLocalPlayerReadyChanged(object sender, System.EventArgs e)
+    {
+        if (GameManager.Instance.IsLocalPlayerReady())
         {
             Hide();
         }
     }
 
-    private void Player_OnKeyRebind(object sender, System.EventArgs e)
+    public void Player_OnKeyRebind(object sender, System.EventArgs e)
     {
         UpdateVisual();
     }
 
-    private void UpdateVisual()
+    public void UpdateVisual()
     {
-        /*keyMoveUpText.text = Player.Instance.GetBindingText(Player.Binding.MOVE_UP);
-        keyMoveDownText.text = Player.Instance.GetBindingText(Player.Binding.MOVE_DOWN);
-        keyMoveRightText.text = Player.Instance.GetBindingText(Player.Binding.MOVE_RIGHT);
-        keyMoveLeftText.text = Player.Instance.GetBindingText(Player.Binding.MOVE_LEFT);
-        keyInteractText.text = Player.Instance.GetBindingText(Player.Binding.INTERACT);
-        keyAltInteractText.text = Player.Instance.GetBindingText(Player.Binding.ALT_INTERACT);
-        keyPauseText.text = Player.Instance.GetBindingText(Player.Binding.PAUSE_GAME);
+        keyMoveUpText.text = Player.LocalInstance.GetBindingText(Player.Binding.MOVE_UP);
+        keyMoveDownText.text = Player.LocalInstance.GetBindingText(Player.Binding.MOVE_DOWN);
+        keyMoveRightText.text = Player.LocalInstance.GetBindingText(Player.Binding.MOVE_RIGHT);
+        keyMoveLeftText.text = Player.LocalInstance.GetBindingText(Player.Binding.MOVE_LEFT);
+        keyInteractText.text = Player.LocalInstance.GetBindingText(Player.Binding.INTERACT);
+        keyAltInteractText.text = Player.LocalInstance.GetBindingText(Player.Binding.ALT_INTERACT);
+        keyPauseText.text = Player.LocalInstance.GetBindingText(Player.Binding.PAUSE_GAME);
         keyInteractGamepadText.text = "X";
         keyAltInteractGamepadText.text = "RT";
-        keyPauseGamepadText.text = ">";*/
+        keyPauseGamepadText.text = ">";
     }
 
-    private void Show()
+    public void Show()
     {
         gameObject.SetActive(true);
     }
 
-    private void Hide()
+    public void Hide()
     {
         gameObject.SetActive(false);
     }
