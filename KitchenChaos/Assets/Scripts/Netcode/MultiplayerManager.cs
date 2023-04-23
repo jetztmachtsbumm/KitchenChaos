@@ -73,12 +73,12 @@ public class MultiplayerManager : NetworkBehaviour
         kitchenObject.ClearKitchenObjectOnParent();
     }
 
-    private int GetKitchenObjectSOIndex(KitchenObjectSO kitchenObjectSO)
+    public int GetKitchenObjectSOIndex(KitchenObjectSO kitchenObjectSO)
     {
         return kitchenObjectList.kitchenObjects.IndexOf(kitchenObjectSO);
     }
 
-    private KitchenObjectSO GetkitchenObjectSOFromIndex(int index)
+    public KitchenObjectSO GetkitchenObjectSOFromIndex(int index)
     {
         return kitchenObjectList.kitchenObjects[index];
     }
