@@ -84,17 +84,33 @@ public class Player : NetworkBehaviour, IKitchenObjectParent
             OnKeyRebind += TutorialUI.Instance.Player_OnKeyRebind;
             TutorialUI.Instance.UpdateVisual();
             TutorialUI.Instance.Show();
+        }
 
-            OnAnyPlayerSpawned?.Invoke(this, EventArgs.Empty);
+        OnAnyPlayerSpawned?.Invoke(this, EventArgs.Empty);
+
+        if (IsServer)
+        {
+            NetworkManager.OnClientDisconnectCallback += NetworkManager_OnClientDisconnectCallback;
+        }
+    }
+
+    private void NetworkManager_OnClientDisconnectCallback(ulong clientId)
+    {
+        if(clientId == OwnerClientId && HasKitchenObject())
+        {
+            KitchenObject.DestroyKitchenObject(GetKitchenObject());
         }
     }
 
     new private void OnDestroy()
     {
-        playerInputActions.Player.Interact.performed -= Interact_performed;
-        playerInputActions.Player.AltInteract.performed -= AltInteract_performed;
-        playerInputActions.Player.Pause.performed -= Pause_performed;
-        playerInputActions.Dispose();
+        if (IsOwner)
+        {
+            playerInputActions.Player.Interact.performed -= Interact_performed;
+            playerInputActions.Player.AltInteract.performed -= AltInteract_performed;
+            playerInputActions.Player.Pause.performed -= Pause_performed;
+            playerInputActions.Dispose();
+        }
     }
 
     private void Update()

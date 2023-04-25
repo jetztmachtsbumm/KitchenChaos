@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -13,7 +14,10 @@ public class PauseMenuUI : MonoBehaviour
     private void Awake()
     {
         resumeButton.onClick.AddListener(() => GameManager.Instance.TogglePauseGame());
-        mainMenuButton.onClick.AddListener(() => Loader.Load(Loader.Scene.MainMenu));
+        mainMenuButton.onClick.AddListener(() => {
+            NetworkManager.Singleton.Shutdown();
+            Loader.Load(Loader.Scene.MainMenu);
+        });
         settingsButton.onClick.AddListener(() => {
             Hide();
             SettingsUI.Instance.Show(Show); 
@@ -22,11 +26,11 @@ public class PauseMenuUI : MonoBehaviour
 
     private void Start()
     {
-        GameManager.Instance.OnGamePauseToggled += GameManager_OnGamePauseToggled;
+        GameManager.Instance.OnLocalGamePaused += GameManager_OnLocalGamePauseToggled;
         Hide();
     }
 
-    private void GameManager_OnGamePauseToggled(object sender, bool e)
+    private void GameManager_OnLocalGamePauseToggled(object sender, bool e)
     {
         if (e)
         {

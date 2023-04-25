@@ -69,7 +69,7 @@ public class SettingsUI : MonoBehaviour
 
     private void Start()
     {
-        GameManager.Instance.OnGamePauseToggled += GameManager_OnGamePauseToggled;
+        GameManager.Instance.OnLocalGamePaused += GameManager_OnGamePauseToggled;
         UpdateVisual();
         Hide();
         HidePressToRebindKey();
