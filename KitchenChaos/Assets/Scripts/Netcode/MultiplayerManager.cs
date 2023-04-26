@@ -3,11 +3,17 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class MultiplayerManager : NetworkBehaviour
 {
-    
+
+    private const int MAX_PLAYERS = 4;
+
     public static MultiplayerManager Instance { get; private set; }
+
+    public event EventHandler OnTryJoinGame;
+    public event EventHandler OnJoinGameFailed;
 
     [SerializeField] private KitchenObjectListSO kitchenObjectList;
 
@@ -19,6 +25,8 @@ public class MultiplayerManager : NetworkBehaviour
             Destroy(gameObject);
         }
         Instance = this;
+
+        DontDestroyOnLoad(gameObject);
     }
 
     public void StartHost()
@@ -29,13 +37,34 @@ public class MultiplayerManager : NetworkBehaviour
 
     private void NetworkManager_ConnectionApprovalCallback(NetworkManager.ConnectionApprovalRequest connectionApprovalRequest, NetworkManager.ConnectionApprovalResponse connectionApprovalResponse)
     {
-        connectionApprovalResponse.Approved = GameManager.Instance.IsWaitingToStart();
-        connectionApprovalResponse.CreatePlayerObject = GameManager.Instance.IsWaitingToStart();
+        if(SceneManager.GetActiveScene().name != Loader.Scene.CharacterSelectScene.ToString())
+        {
+            connectionApprovalResponse.Approved = false;
+            connectionApprovalResponse.Reason = "Game already started!";
+            return;
+        }
+
+        if(NetworkManager.ConnectedClientsIds.Count >= MAX_PLAYERS)
+        {
+            connectionApprovalResponse.Approved = false;
+            connectionApprovalResponse.Reason = "Game is full!";
+            return;
+        }
+
+        connectionApprovalResponse.Approved = true;
     }
 
     public void StartClient()
     {
+        OnTryJoinGame?.Invoke(this, EventArgs.Empty);
+
+        NetworkManager.OnClientDisconnectCallback += NetworkManager_OnClientDisconnectCallback;
         NetworkManager.StartClient();
+    }
+
+    private void NetworkManager_OnClientDisconnectCallback(ulong clientId)
+    {
+        OnJoinGameFailed?.Invoke(this, EventArgs.Empty);
     }
 
     public void SpawnKitchenObject(KitchenObjectSO kitchenObjectSO, IKitchenObjectParent kitchenObjectParent)
