@@ -204,6 +204,11 @@ public class GameManager : NetworkBehaviour
         return gameState.Value == GameState.GamePlaying;
     }
 
+    public bool IsWaitingToStart()
+    {
+        return gameState.Value == GameState.WaitingToStart;
+    }
+
     public bool IsCountdownToStartActive()
     {
         return gameState.Value == GameState.CountdownToStart;

@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Netcode;
@@ -18,6 +19,23 @@ public class MultiplayerManager : NetworkBehaviour
             Destroy(gameObject);
         }
         Instance = this;
+    }
+
+    public void StartHost()
+    {
+        NetworkManager.ConnectionApprovalCallback += NetworkManager_ConnectionApprovalCallback;
+        NetworkManager.StartHost();
+    }
+
+    private void NetworkManager_ConnectionApprovalCallback(NetworkManager.ConnectionApprovalRequest connectionApprovalRequest, NetworkManager.ConnectionApprovalResponse connectionApprovalResponse)
+    {
+        connectionApprovalResponse.Approved = GameManager.Instance.IsWaitingToStart();
+        connectionApprovalResponse.CreatePlayerObject = GameManager.Instance.IsWaitingToStart();
+    }
+
+    public void StartClient()
+    {
+        NetworkManager.StartClient();
     }
 
     public void SpawnKitchenObject(KitchenObjectSO kitchenObjectSO, IKitchenObjectParent kitchenObjectParent)
