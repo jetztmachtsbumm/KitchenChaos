@@ -49,6 +49,7 @@ public class Player : NetworkBehaviour, IKitchenObjectParent
     [SerializeField] private LayerMask collisionsLayerMask;
     [SerializeField] private Transform kitchenObjectHoldPoint;
     [SerializeField] private List<Vector3> spawnPositions;
+    [SerializeField] private PlayerVisual playerVisual;
 
     private PlayerInputActions playerInputActions;
     private Animator animator;
@@ -77,7 +78,7 @@ public class Player : NetworkBehaviour, IKitchenObjectParent
 
             animator = GetComponentInChildren<Animator>();
 
-            transform.position = spawnPositions[(int)OwnerClientId];
+            transform.position = spawnPositions[MultiplayerManager.Instance.GetPlayerDataIndexFromClientId(OwnerClientId)];
 
             OnPauseAction += GameManager.Instance.Player_OnPauseAction;
             OnInteractAction += GameManager.Instance.Player_OnInteractAction;
@@ -85,6 +86,9 @@ public class Player : NetworkBehaviour, IKitchenObjectParent
             TutorialUI.Instance.UpdateVisual();
             TutorialUI.Instance.Show();
         }
+
+        PlayerData playerData = MultiplayerManager.Instance.GetPlayerDataFromClientId(OwnerClientId);
+        playerVisual.SetPlayerColor(MultiplayerManager.Instance.GetPlayerColor(playerData.colorId));
 
         OnAnyPlayerSpawned?.Invoke(this, EventArgs.Empty);
 
