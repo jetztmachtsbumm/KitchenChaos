@@ -28,6 +28,16 @@ public class LobbyMessageUI : MonoBehaviour
         Hide();
     }
 
+    private void OnDestroy()
+    {
+        MultiplayerManager.Instance.OnJoinGameFailed -= MultiplayerManager_OnJoinGameFailed;
+        LobbyManager.Instance.OnCreateLobbyStarted -= LobbyManager_OnCreateLobbyStarted;
+        LobbyManager.Instance.OnCreateLobbyFailed -= LobbyManager_OnCreateLobbyFailed;
+        LobbyManager.Instance.OnJoinStarted -= LobbyManager_OnJoinStarted;
+        LobbyManager.Instance.OnQuickJoinFailed -= LobbyManager_OnQuickJoinFailed;
+        LobbyManager.Instance.OnJoinFailed -= LobbyManager_OnJoinFailed;
+    }
+
     private void LobbyManager_OnCreateLobbyStarted(object sender, System.EventArgs e)
     {
         ShowMessage("Creating lobby...");
@@ -51,11 +61,6 @@ public class LobbyMessageUI : MonoBehaviour
     private void LobbyManager_OnJoinFailed(object sender, System.EventArgs e)
     {
         ShowMessage("Failed to join lobby!");
-    }
-
-    private void OnDestroy()
-    {
-        MultiplayerManager.Instance.OnJoinGameFailed -= MultiplayerManager_OnJoinGameFailed;
     }
 
     private void MultiplayerManager_OnJoinGameFailed(object sender, System.EventArgs e)
