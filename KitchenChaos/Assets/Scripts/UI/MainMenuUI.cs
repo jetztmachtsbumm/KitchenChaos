@@ -7,12 +7,21 @@ using UnityEngine.UI;
 public class MainMenuUI : MonoBehaviour
 {
 
-    [SerializeField] private Button playButton;
+    [SerializeField] private Button playMultiplayerButton;
+    [SerializeField] private Button playSingleplayerButton;
     [SerializeField] private Button quitButton;
 
     private void Awake()
     {
-        playButton.onClick.AddListener(() => Loader.Load(Loader.Scene.LobbyScene));
+        playMultiplayerButton.onClick.AddListener(() => {
+            MultiplayerManager.multiplayer = true;
+            Loader.Load(Loader.Scene.LobbyScene);
+        });
+
+        playSingleplayerButton.onClick.AddListener(() => {
+            MultiplayerManager.multiplayer = false;
+            Loader.Load(Loader.Scene.LobbyScene);
+        });
         quitButton.onClick.AddListener(() => Application.Quit());
         Time.timeScale = 1f;
     }

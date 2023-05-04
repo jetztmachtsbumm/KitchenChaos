@@ -2,6 +2,8 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Netcode;
+using Unity.Netcode.Transports.UTP;
+using Unity.Networking.Transport.Relay;
 using Unity.Services.Authentication;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -12,6 +14,8 @@ public class MultiplayerManager : NetworkBehaviour
     public const int MAX_PLAYERS = 4;
 
     public static MultiplayerManager Instance { get; private set; }
+
+    public static bool multiplayer;
 
     public event EventHandler OnTryJoinGame;
     public event EventHandler OnJoinGameFailed;
@@ -38,6 +42,16 @@ public class MultiplayerManager : NetworkBehaviour
 
         playerDataList = new NetworkList<PlayerData>();
         playerDataList.OnListChanged += PlayerDataList_OnListChanged;
+    }
+
+    private void Start()
+    {
+        if (!multiplayer)
+        {
+            NetworkManager.Singleton.GetComponent<UnityTransport>().SetConnectionData("127.0.0.1", 7777);
+            StartHost();
+            Loader.LoadNetwork(Loader.Scene.GameScene);
+        }
     }
 
     private void PlayerDataList_OnListChanged(NetworkListEvent<PlayerData> changeEvent)
