@@ -2,13 +2,14 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Netcode;
+using Unity.Services.Authentication;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class MultiplayerManager : NetworkBehaviour
 {
 
-    private const int MAX_PLAYERS = 4;
+    public const int MAX_PLAYERS = 4;
 
     public static MultiplayerManager Instance { get; private set; }
 
@@ -20,6 +21,7 @@ public class MultiplayerManager : NetworkBehaviour
     [SerializeField] private List<Color> playerColorList;
 
     private NetworkList<PlayerData> playerDataList;
+    private string playerName;
 
     private void Awake()
     {
@@ -31,6 +33,8 @@ public class MultiplayerManager : NetworkBehaviour
         Instance = this;
 
         DontDestroyOnLoad(gameObject);
+
+        playerName = PlayerPrefs.GetString("PlayerName", "Player" + UnityEngine.Random.Range(1000, 10000));
 
         playerDataList = new NetworkList<PlayerData>();
         playerDataList.OnListChanged += PlayerDataList_OnListChanged;
@@ -86,14 +90,46 @@ public class MultiplayerManager : NetworkBehaviour
             clientId = clientId,
             colorId = GetFirstUnusedColorId()
         });
+        SetPlayerNameServerRpc(GetPlayerName());
     }
 
     public void StartClient()
     {
         OnTryJoinGame?.Invoke(this, EventArgs.Empty);
 
+        NetworkManager.OnClientConnectedCallback += NetworkManager_Client_OnClientConnectCallback;
         NetworkManager.OnClientDisconnectCallback += NetworkManager_Client_OnClientDisconnectCallback;
         NetworkManager.StartClient();
+    }
+
+    private void NetworkManager_Client_OnClientConnectCallback(ulong clientId)
+    {
+        SetPlayerNameServerRpc(GetPlayerName());
+        SetPlayerIdServerRpc(AuthenticationService.Instance.PlayerId);
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    private void SetPlayerNameServerRpc(string playerName, ServerRpcParams serverRpcParams = default)
+    {
+        int playerDataIndex = GetPlayerDataIndexFromClientId(serverRpcParams.Receive.SenderClientId);
+
+        PlayerData playerData = playerDataList[playerDataIndex];
+
+        playerData.playerName = playerName;
+
+        playerDataList[playerDataIndex] = playerData;
+    }
+    
+    [ServerRpc(RequireOwnership = false)]
+    private void SetPlayerIdServerRpc(string playerId, ServerRpcParams serverRpcParams = default)
+    {
+        int playerDataIndex = GetPlayerDataIndexFromClientId(serverRpcParams.Receive.SenderClientId);
+
+        PlayerData playerData = playerDataList[playerDataIndex];
+
+        playerData.playerId = playerId;
+
+        playerDataList[playerDataIndex] = playerData;
     }
 
     private void NetworkManager_Client_OnClientDisconnectCallback(ulong clientId)
@@ -262,6 +298,17 @@ public class MultiplayerManager : NetworkBehaviour
     {
         NetworkManager.DisconnectClient(clientId);
         NetworkManager_Server_OnClientDisconnectCallback(clientId);
+    }
+
+    public string GetPlayerName()
+    {
+        return playerName;
+    }
+
+    public void SetPlayerName(string playerName)
+    {
+        this.playerName = playerName;
+        PlayerPrefs.SetString("PlayerName", playerName);
     }
 
 }
